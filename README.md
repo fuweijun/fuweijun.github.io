@@ -2,9 +2,9 @@
 
 ------
 
-域名：http://blog.fuweijun.com
+![Foo](/favicon.ico)域名：http://blog.fuweijun.com
 ## Github
-* 1.新建<username>.github.io代码仓。初始化by Readme。
+* 1.新建&lt;username>.github.io代码仓。初始化by Readme。
 * 2.添加index.html，需要自定义域名的添加CNAME。
 
 ## 本地

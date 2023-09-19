@@ -1,0 +1,144 @@
+<html>
+<head>
+    <title>Qrcode</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        #qr-reader {
+            width: 100%;
+            margin-top: 10%;
+            padding-top: 10%;
+        }
+        #qr-reader__dashboard {
+            height: 200px;
+        }
+        #qr-reader__dashboard_section{
+            height: 180px;
+        }
+        #html5-qrcode-anchor-scan-type-change {
+            line-height: 60px;
+        }
+        #qr-reader-results {
+            width: 100%;
+            overflow: auto;
+        }
+        #scanned-result-table-body {
+            width: 100%;
+            overflow: auto;
+        }
+        tbody td {
+            word-break: break-all;
+        }
+    </style>
+<body>
+    <div id="qr-reader" style="width:100%"></div>
+    <div id="qr-reader-results"></div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/highlight.min.js"></script>
+<script src="js/html5-qrcode.min.js"></script>
+<script>
+function getQueryStr(url, name) {
+    var str = url.substr(url.indexOf('?') + 1);
+    var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+    var r = str.match(reg);
+    if (r != null) {
+        return unescape(r[2]);
+    }
+    return null;
+}
+function docReady(fn) {
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+        setTimeout(fn, 1);
+    } else {
+        document.addEventListener("DOMContentLoaded", fn);
+    }
+}
+
+function printScanResultPretty(codeId, decodedText, decodedResult) {
+	let resultSection = document.getElementById('qr-reader-results');
+    let tableBodyId = "scanned-result-table-body";
+    if (!document.getElementById(tableBodyId)) {
+        let table = document.createElement("table");
+        table.className = "styled-table";
+        table.style.width = "100%";
+        resultSection.appendChild(table);
+        let theader = document.createElement('thead');
+        let trow = document.createElement('tr');
+        let th1 = document.createElement('td');
+        th1.innerText = "Count";
+        let th2 = document.createElement('td');
+        th2.innerText = "Format";
+        let th3 = document.createElement('td');
+        th3.innerText = "Result";
+        trow.appendChild(th1);
+        trow.appendChild(th2);
+        trow.appendChild(th3);
+        theader.appendChild(trow);
+        table.appendChild(theader);
+        let tbody = document.createElement("tbody");
+        tbody.id = tableBodyId;
+        table.appendChild(tbody);
+    }
+    let tbody = document.getElementById(tableBodyId);
+    let trow = document.createElement('tr');
+    let td1 = document.createElement('td');
+    td1.innerText = `${codeId}`;
+    let td2 = document.createElement('td');
+    td2.innerText = `${decodedResult.result.format.formatName}`;
+    let td3 = document.createElement('td');
+    td3.innerText = `${decodedText}`;
+    trow.appendChild(td1);
+    trow.appendChild(td2);
+    trow.appendChild(td3);
+    tbody.appendChild(trow);
+}
+docReady(function() {
+	hljs.initHighlightingOnLoad();
+	var lastMessage;
+	var codeId = 0;
+	function onScanSuccess(decodedText, decodedResult) {
+		if (lastMessage !== decodedText) {
+			lastMessage = decodedText;
+			let secret = getQueryStr(decodedText, "secret");
+			if(secret != null){
+			    window.location.href = "index.html?key=" + secret;
+			}else{
+                printScanResultPretty(codeId, decodedText, decodedResult);
+			}
+            ++codeId;
+		}
+	}
+    var qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
+        // Square QR Box, with size = 80% of the min edge.
+        var minEdgeSizeThreshold = 250;
+        var edgeSizePercentage = 0.75;
+        var minEdgeSize = (viewfinderWidth > viewfinderHeight) ?
+            viewfinderHeight : viewfinderWidth;
+        var qrboxEdgeSize = Math.floor(minEdgeSize * edgeSizePercentage);
+        if (qrboxEdgeSize < minEdgeSizeThreshold) {
+            if (minEdgeSize < minEdgeSizeThreshold) {
+                return {width: minEdgeSize, height: minEdgeSize};
+            } else {
+                return {
+                    width: minEdgeSizeThreshold,
+                    height: minEdgeSizeThreshold
+                };
+            }
+        }
+        return {width: qrboxEdgeSize, height: qrboxEdgeSize};
+    }
+	let html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", 
+        { 
+            fps: 10,
+            qrbox: qrboxFunction,
+            experimentalFeatures: {
+                useBarCodeDetectorIfSupported: true
+            },
+            rememberLastUsedCamera: true,
+            showTorchButtonIfSupported: true
+        });
+	html5QrcodeScanner.render(onScanSuccess);
+});
+</script>
+</head>
+</html>

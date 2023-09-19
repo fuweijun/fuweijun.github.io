@@ -29,7 +29,7 @@ function parseURLSearch(search) {
 const app = Vue.createApp({
   data() {
     return {
-      secret_key: 'JBSWY3DPEHPK3PXP',
+      secret_key: '',
       digits: 6,
       period: 30,
       algorithm: 'SHA1',
@@ -42,6 +42,7 @@ const app = Vue.createApp({
   mounted: function () {
     this.getKeyFromUrl();
     this.getQueryParameters()
+    this.getKeyFromLocalStoage()
     this.update();
 
     this.intervalHandle = setInterval(this.update, 1000);
@@ -69,12 +70,19 @@ const app = Vue.createApp({
       this.updatingIn = this.period - (getCurrentSeconds() % this.period);
       this.token = truncateTo(this.totp.generate(), this.digits);
     },
-
+    getKeyFromLocalStoage: function () {
+        if(this.secret_key == ""){
+            const key = localStorage.getItem("key");
+          if (key && key.length > 0) {
+            this.secret_key = key;
+          }
+        }
+    },
     getKeyFromUrl: function () {
       const key = document.location.hash.replace(/[#\/]+/, '');
-
       if (key.length > 0) {
         this.secret_key = key;
+        localStorage.setItem("key", key);
       }
     },
     getQueryParameters: function () {
@@ -82,6 +90,7 @@ const app = Vue.createApp({
 
       if (queryParams.key) {
         this.secret_key = queryParams.key;
+        localStorage.setItem("key", queryParams.key);
       }
 
       if (queryParams.digits) {

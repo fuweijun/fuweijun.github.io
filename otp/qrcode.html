@@ -33,7 +33,6 @@
     <div id="qr-reader" style="width:100%"></div>
     <div id="qr-reader-results"></div>
 </body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/highlight.min.js"></script>
 <script src="js/html5-qrcode.min.js"></script>
 <script>
 function getQueryStr(url, name) {
@@ -92,7 +91,6 @@ function printScanResultPretty(codeId, decodedText, decodedResult) {
     tbody.appendChild(trow);
 }
 docReady(function() {
-	hljs.initHighlightingOnLoad();
 	var lastMessage;
 	var codeId = 0;
 	function onScanSuccess(decodedText, decodedResult) {
